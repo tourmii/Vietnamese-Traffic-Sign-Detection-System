@@ -12,3 +12,7 @@ wheels/
 datasets/
 dataset/
 dataset.zip
+yolov11/runs
+yolov11/wandb
+faster_rcnn/wandb
+faster_rcnn/checkpoints

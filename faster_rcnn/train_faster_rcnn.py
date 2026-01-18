@@ -156,10 +156,10 @@ def main():
         'pretrained': True,
     }
     
-    train_images_dir = PROJECT_ROOT + "dataset/images/train"
-    train_labels_dir = PROJECT_ROOT + "dataset/labels/train"
-    val_images_dir = PROJECT_ROOT + "dataset/images/val"
-    val_labels_dir = PROJECT_ROOT + "dataset/labels/val"
+    train_images_dir = PROJECT_ROOT + "/dataset/images/train"
+    train_labels_dir = PROJECT_ROOT + "/dataset/labels/train"
+    val_images_dir = PROJECT_ROOT + "/dataset/images/val"
+    val_labels_dir = PROJECT_ROOT + "/dataset/labels/val"
     
     print(f"Using device: {config['device']}")
     print(f"Number of classes: {NUM_CLASSES}")
@@ -175,8 +175,8 @@ def main():
         print(f"Could not initialize wandb: {e}")
         use_wandb = False
     
-    train_dataset = TrafficSignDataset(train_images_dir, train_labels_dir)
-    val_dataset = TrafficSignDataset(val_images_dir, val_labels_dir)
+    train_dataset = TrafficSignDataset(train_images_dir, train_labels_dir, augment=True)
+    val_dataset = TrafficSignDataset(val_images_dir, val_labels_dir, augment=False)
     
     print(f"Training samples: {len(train_dataset)}")
     print(f"Validation samples: {len(val_dataset)}")

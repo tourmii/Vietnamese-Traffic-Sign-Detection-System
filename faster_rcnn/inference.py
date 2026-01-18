@@ -30,7 +30,22 @@ def load_model(checkpoint_path: str, num_classes: int = 53):
     return model
 
 
-def detect_signs(model, image_path: str, device: str = 'cuda', threshold: float = 0.5):
+def apply_nms(boxes, scores, labels, iou_threshold=0.5):
+    """Apply Non-Maximum Suppression to remove duplicate boxes"""
+    if len(boxes) == 0:
+        return [], [], []
+    
+    boxes_tensor = torch.tensor(boxes, dtype=torch.float32)
+    scores_tensor = torch.tensor(scores, dtype=torch.float32)
+    
+    # Apply NMS
+    keep_indices = torchvision.ops.nms(boxes_tensor, scores_tensor, iou_threshold)
+    keep_indices = keep_indices.numpy()
+    
+    return boxes[keep_indices], scores[keep_indices], labels[keep_indices]
+
+
+def detect_signs(model, image_path: str, device: str = 'cuda', threshold: float = 0.5, nms_threshold: float = 0.3):
     """
     Detect traffic signs in an image
     
@@ -39,6 +54,7 @@ def detect_signs(model, image_path: str, device: str = 'cuda', threshold: float 
         image_path: Path to the image
         device: 'cuda' or 'cpu'
         threshold: Confidence threshold
+        nms_threshold: IoU threshold for NMS (lower = more aggressive filtering)
         
     Returns:
         List of detections with boxes, labels, scores
@@ -60,6 +76,9 @@ def detect_signs(model, image_path: str, device: str = 'cuda', threshold: float 
     boxes = predictions['boxes'][keep].cpu().numpy()
     labels = predictions['labels'][keep].cpu().numpy()
     scores = predictions['scores'][keep].cpu().numpy()
+    
+    # Apply NMS to remove duplicate boxes
+    boxes, scores, labels = apply_nms(boxes, scores, labels, nms_threshold)
     
     detections = []
     for box, label, score in zip(boxes, labels, scores):
@@ -117,16 +136,6 @@ def visualize_detections(image, detections, save_path: str = None):
 
 def detect_and_explain(model, image_path: str, device: str = 'cuda', 
                        threshold: float = 0.5, visualize: bool = True):
-    """
-    Detect signs and print detailed information including penalties
-    
-    Args:
-        model: Trained model
-        image_path: Path to image
-        device: 'cuda' or 'cpu'
-        threshold: Confidence threshold
-        visualize: Whether to show visualization
-    """
     print(f"\n Đang phát hiện biển báo trong: {image_path}")
     print("=" * 60)
     
@@ -162,7 +171,7 @@ def detect_and_explain(model, image_path: str, device: str = 'cuda',
     
     # Visualize if requested
     if visualize:
-        visualize_detections(image, detections)
+        visualize_detections(image, detections, save_path="output.png")
     
     return detections
 
@@ -175,7 +184,7 @@ def main():
     parser.add_argument("--image", type=str, required=True, help="Path to input image")
     parser.add_argument("--model", type=str, default="checkpoints/best_model.pth", 
                         help="Path to model checkpoint")
-    parser.add_argument("--threshold", type=float, default=0.5, 
+    parser.add_argument("--threshold", type=float, default=0.7, 
                         help="Confidence threshold")
     parser.add_argument("--device", type=str, default="cuda", 
                         help="Device to use (cuda/cpu)")

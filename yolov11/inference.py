@@ -15,7 +15,7 @@ from utils.label_const import LABEL_TEXT, LABEL_CHAR
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-def detect_and_explain(model_path: str, image_path: str, threshold: float = 0.5, visualize: bool = True):
+def detect_and_explain(model_path: str, image_path: str, threshold: float = 0.5, nms_threshold: float = 0.3, visualize: bool = True):
     """
     Detect signs using YOLO and print detailed information including penalties
     
@@ -23,6 +23,7 @@ def detect_and_explain(model_path: str, image_path: str, threshold: float = 0.5,
         model_path: Path to YOLO model (.pt file)
         image_path: Path to input image
         threshold: Confidence threshold
+        nms_threshold: NMS (IOU) threshold for Non-Maximum Suppression
         visualize: Whether to show visualization
     """
     print(f"\n Đang phát hiện biển báo trong: {image_path}")
@@ -32,7 +33,7 @@ def detect_and_explain(model_path: str, image_path: str, threshold: float = 0.5,
     model = YOLO(model_path)
     
     # Run inference
-    results = model(image_path, conf=threshold)[0]
+    results = model(image_path, conf=threshold, iou=nms_threshold)[0]
     
     if len(results.boxes) == 0:
         print(" Không phát hiện biển báo nào trong ảnh.")
@@ -45,7 +46,6 @@ def detect_and_explain(model_path: str, image_path: str, threshold: float = 0.5,
         conf = float(box.conf.item())
         xyxy = box.xyxy[0].cpu().numpy()
         
-        # YOLO uses 0-indexed classes, our labels are 1-indexed
         label_id = cls + 1
         
         detections.append({
@@ -90,6 +90,7 @@ def detect_and_explain(model_path: str, image_path: str, threshold: float = 0.5,
         plt.axis('off')
         plt.tight_layout()
         plt.show()
+        plt.savefig("output.png", dpi=150, bbox_inches='tight')
     
     return detections
 
@@ -104,6 +105,8 @@ def main():
                         help="Path to YOLO model")
     parser.add_argument("--threshold", type=float, default=0.5, 
                         help="Confidence threshold")
+    parser.add_argument("--nms-threshold", type=float, default=0.3, 
+                        help="NMS (IOU) threshold for Non-Maximum Suppression")
     parser.add_argument("--no-viz", action="store_true", 
                         help="Disable visualization")
     
@@ -123,6 +126,7 @@ def main():
         model_path, 
         args.image, 
         threshold=args.threshold,
+        nms_threshold=args.nms_threshold,
         visualize=not args.no_viz
     )
 

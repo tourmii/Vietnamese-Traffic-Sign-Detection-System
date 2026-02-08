@@ -1,7 +1,9 @@
 import os
 import sys
 from typing import List, Dict, Optional, Generator
+from dotenv import load_dotenv
 
+load_dotenv()
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from utils.sign_info_parser import (
@@ -34,7 +36,7 @@ Nhiệm vụ của bạn:
 Hướng dẫn:
 - Trả lời bằng tiếng Việt
 - Cung cấp thông tin chính xác, dễ hiểu
-- Trích dẫn điều luật khi cần thiết
+- Trích dẫn điều luật khi cần thiếtad
 - Nếu không chắc chắn, hãy nói rõ và đề nghị tham khảo thêm nguồn chính thức
 
 {context}"""
@@ -49,7 +51,7 @@ class TrafficSignChatbot:
         self.chat = None
         self.detected_signs_context = ""
         self.history = []
-        self.model = "mistral-medium-latest"  # Model to use
+        self.model = "ministral-3b-2512"  # Model to use
         
         self._load_knowledge()
         

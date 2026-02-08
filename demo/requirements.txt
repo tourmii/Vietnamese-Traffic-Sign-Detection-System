@@ -1,7 +1,8 @@
 # Demo Dependencies
 
 gradio>=4.0.0
-google-genai>=1.0.0
+mistralai
+python-dotenv
 opencv-python>=4.8.0
 torch>=2.0.0
 torchvision>=0.15.0
@@ -9,4 +10,4 @@ ultralytics>=8.0.0
 Pillow>=9.0.0
 numpy>=1.24.0
 matplotlib>=3.7.0
-
+imageio[ffmpeg]

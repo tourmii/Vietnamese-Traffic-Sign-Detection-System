@@ -7,7 +7,6 @@ from PIL import Image
 import tempfile
 from typing import List, Dict, Tuple, Optional
 
-# Add parent directory for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from utils.sign_info_parser import get_sign_info, format_sign_info
@@ -64,9 +63,9 @@ class TrafficSignDetector:
             
             if os.path.exists(self.yolo_path):
                 self.yolo_model = YOLO(self.yolo_path)
-                print(f"✅ Loaded YOLO from {self.yolo_path}")
+                print(f" Loaded YOLO from {self.yolo_path}")
             else:
-                print(f"⚠️ YOLO checkpoint not found: {self.yolo_path}")
+                print(f" YOLO checkpoint not found: {self.yolo_path}")
                 self.yolo_model = YOLO("yolov8n.pt")  # Fallback to pretrained
         
         return self.yolo_model
